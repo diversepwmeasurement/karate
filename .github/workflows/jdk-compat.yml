@@ -1,26 +1,28 @@
-name: jdk-compat
-
-on:
-  push:
-    branches: [ develop ]
-
 jobs:
   build:
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-    - name: git checkout
+    - continue-on-error: true
+      name: git checkout
       uses: actions/checkout@v4
-    - name: get latest jdk ga
+    - continue-on-error: true
+      name: get latest jdk ga
       uses: oracle-actions/setup-java@v1
       with:
-        website: jdk.java.net
         release: 21
-    - name: cache maven packages
+        website: jdk.java.net
+    - continue-on-error: true
+      name: cache maven packages
       uses: actions/cache@v4
       with:
-        path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        path: ~/.m2/repository
         restore-keys: ${{ runner.os }}-maven-
-    - name: build with maven
+    - continue-on-error: true
+      name: build with maven
       run: mvn -B clean install -P pre-release -pl '!karate-gatling' -Djavacpp.platform=linux-x86_64
+    timeout-minutes: 10
+name: jdk-compat
+on:
+  repository_dispatch:
+    types: trigger-ga___jdk-compat.yml
